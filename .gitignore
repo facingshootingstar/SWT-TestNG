@@ -12,3 +12,7 @@ Desktop.ini
 
 # Accidental env leftovers
 ${env
+
+# Generated decks (source of truth is build.js)
+_build/TestNG.pptx
+_build/TestNG-animated.pptx

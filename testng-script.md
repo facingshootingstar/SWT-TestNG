@@ -1,6 +1,6 @@
 # TestNG — kịch bản thuyết trình 15 phút
 
-**`TestNG.pptx`** — file để trình chiếu. 20 slide, có hoạt ảnh, chạy offline (ảnh nhúng sẵn).
+**`TestNG.pptx`** — file để trình chiếu. 22 slide, có hoạt ảnh, chạy offline (ảnh nhúng sẵn).
 Speaker notes nằm sẵn trong file: **Slide Show → Use Presenter View**.
 Motion: shape tự fade-in khi mở slide (không cần bấm) · **Morph** làm số phần, thanh tiến độ,
 số trang trượt giữa các slide · **Push** ở 3 chỗ chuyển phần. Morph cần PowerPoint 2016+;
@@ -25,8 +25,8 @@ máy cũ hơn tự lùi về fade, không vỡ.
 |---|---|---|---|---|
 | — | 1 | Người 1 | Mở đầu | 0:00–0:20 |
 | **I** | 2–8 | **Người 1** | What · History · Why | 0:20–5:00 |
-| **II** | 9–14 | **Người 2** | Pros · Cons · Highlight | 5:00–10:15 |
-| **III** | 15–20 | **Người 3** | Features · Users · Reference | 10:15–13:50 |
+| **II** | 9–16 | **Người 2** | Pros · Cons · Highlight | 5:00–10:15 |
+| **III** | 17–22 | **Người 3** | Features · Users · Reference | 10:15–13:50 |
 | — | | | *dự phòng* | 13:50–15:00 |
 
 Đổi người ngay tại slide chia phần (2, 9, 15) — khán giả tự nhận ra nhờ đổi màu.
@@ -70,14 +70,17 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ### Slide 4 · Architecture — 55 giây
 **Ý**
-- Ba đầu vào: `testng.xml`, annotation trên code, data provider.
-- Engine ở giữa không chỉ *chạy* test: nó **giải đồ thị phụ thuộc**, rồi **xếp lịch lên thread pool**, rồi mới chạy.
-- Đầu ra đi qua listener — chỗ để cắm thêm (chụp màn hình, log, retry).
-- Kết thúc ở report HTML / XML.
-- Dùng tay chỉ theo luồng, đừng đọc chữ trong từng ô.
+- Kiến trúc **module hóa**: cấu hình linh hoạt, mở rộng từng mảnh.
+- Năm thành phần, chỉ theo luồng bằng tay, đừng đọc chữ trong từng ô:
+  1. **XML Configuration** — `testng.xml` định nghĩa suite, test, class, group, parameter.
+  2. **Annotation Processor** — đọc `@Test`, `@BeforeMethod`… qua reflection.
+  3. **Data Provider** — bơm dữ liệu vào test method từ `@DataProvider`.
+  4. **TestNG Engine** — lõi thực thi: đọc cấu hình, điều khiển quá trình chạy.
+  5. **Listeners & Reporter** — bắt sự kiện, xuất báo cáo HTML / XML.
+- Cắm thêm hay đổi một module — engine vẫn giữ nguyên.
 
 **Nói**
-> "Ba đầu vào: một file XML, các annotation đặt trên code, và data provider. Engine ở giữa không chỉ chạy test — nó giải đồ thị phụ thuộc trước, xếp lịch lên thread pool, rồi mới thực thi. Đầu ra đi qua lớp listener, đây là chỗ chúng ta cắm thêm code vào, và kết thúc ở một report HTML hoặc XML."
+> "TestNG được thiết kế theo kiến trúc module hóa. Năm mảnh: file XML khai báo suite, class, group, parameter. Annotation processor đọc `@Test` và `@BeforeMethod` bằng reflection. Data provider bơm dữ liệu vào method. Engine ở giữa là lõi — đọc cấu hình rồi điều khiển cả lượt chạy. Listener bắt mọi sự kiện; reporter viết ra HTML hoặc XML."
 
 ---
 
@@ -144,21 +147,21 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 10 · Four things you get — 30 giây
+### Slide 10 · Four things you get — 20 giây
 **Ý**
 - Không liệt kê 20 tính năng. Gom thành 4 chữ:
   - **Order** — lifecycle, priority, dependsOn
   - **Data** — @DataProvider, @Factory
   - **Speed** — chạy song song có sẵn trong core
   - **Control** — testng.xml, listener, CI
-- Báo trước: sẽ chỉ đi sâu 2 cái.
+- Báo trước: mỗi chữ một slide.
 
 **Nói**
-> "Bốn thứ, không phải hai mươi tính năng: thứ tự, dữ liệu, tốc độ, và quyền kiểm soát. Tôi sẽ đi sâu vào hai trong số đó."
+> "Bốn thứ, không phải hai mươi tính năng: thứ tự, dữ liệu, tốc độ, và quyền kiểm soát. Mỗi thứ một slide."
 
 ---
 
-### Slide 11 · One real failure, not three — 60 giây
+### Slide 11 · One real failure, not three — 50 giây
 **Ý**
 - Kịch bản: `login` hỏng.
 - **Không có dependency**: cart fail, checkout fail → 3 báo cáo đỏ, mất 20 phút mới tìm ra chỉ có 1 nguyên nhân.
@@ -171,7 +174,19 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 12 · 40 minutes → 10 — 55 giây
+### Slide 12 · One method, many datasets — 40 giây
+**Ý**
+- Bức tường thứ ba ở slide 8: mười bộ dữ liệu = mười hàm copy-paste.
+- **Không có @DataProvider**: `testLoginChrome`, `testLoginFirefox`, `testLoginSafari` — 3 method, 1 ý.
+- **Có @DataProvider**: một method `testLogin(String browser)`, ba hàng Chrome · Firefox · Safari.
+- Câu phân biệt (dân chuyên môn đánh giá cao): **@DataProvider tham số hoá ở mức method, @Factory tham số hoá ở mức class.**
+
+**Nói**
+> "Không có DataProvider thì mười trình duyệt là mười hàm copy-paste. Có `@DataProvider`, một method, nhiều bộ dữ liệu: Chrome, Firefox, Safari — cùng một assertion, ba hàng. DataProvider tham số hoá ở mức method. Factory làm đúng việc đó, lên một bậc: tham số hoá ở mức class."
+
+---
+
+### Slide 13 · 40 minutes → 10 — 45 giây
 **Ý**
 - Chạy song song nằm trong core, không cần plugin.
 - 4 suite: tuần tự 40 phút → 4 thread còn 10 phút.
@@ -183,19 +198,32 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 13 · What it costs — 60 giây
+### Slide 14 · Don't rebuild. Reconfigure. — 40 giây
+**Ý**
+- **Control** là kéo chiến lược chạy ra khỏi code Java.
+- Cách cũ: muốn bỏ một test thì sửa Java → compile → chạy lại.
+- `testng.xml`: `include: smoke` → 12 test; `include: regression` → 400 test.
+- Cùng class. Khác file XML.
+- Listener cắm cùng kiểu: screenshot, log, retry — không đụng method.
+
+**Nói**
+> "Muốn bỏ một test theo cách cũ thì sửa Java, compile, chạy lại. Với `testng.xml` ta chọn lượt chạy từ bên ngoài code: include smoke thì mười hai test, include regression thì bốn trăm. Cùng class. Khác XML. Listener cắm cùng một kiểu — chụp màn hình, log, retry — không đụng vào một test method nào."
+
+---
+
+### Slide 15 · What it costs — 50 giây
 **Ý**
 - Phần thành thật. Sức mạnh có giá của nó.
 - **Complexity**: group, dependency, factory, listener, XML — nhiều cơ chế = đường học dốc. Dùng dependency sai thì lỗi thật bị chôn dưới một chuỗi skip.
 - **Overkill cho unit test**: một dependency nguyên khối, so với JUnit 5 chia module (Platform / Jupiter / Vintage). Nếu chỉ viết unit test nhanh và độc lập thì cả bộ máy orchestration là thừa — và Spring Boot mặc định dùng JUnit 5.
-- Slide này mua lại uy tín cho mọi thứ nói trước đó. **Đừng nói vội.**
+- Slide này mua lại uy tín cho mọi thứ nói trước đó. **Đừng nói vội.** (~50s)
 
 **Nói**
 > "Bây giờ đến phần thành thật. Sức mạnh đó có giá của nó. Càng nhiều cơ chế thì càng nhiều thứ phải học — và dependency dùng sai sẽ chôn lỗi thật dưới cả một chuỗi skip. Còn nếu ta chỉ viết unit test độc lập và nhanh, thì cả bộ máy điều phối này là gánh nặng thừa: JUnit 5 nhẹ hơn, chia module, và là mặc định của Spring Boot."
 
 ---
 
-### Slide 14 · The real win: getting copied — 65 giây · hết phần II
+### Slide 16 · The real win: getting copied — 60 giây · hết phần II
 **Ý**
 - Slide đáng nhớ nhất cả bài.
 - Không đo framework bằng thị phần — đo bằng **thứ mà đối thủ buộc phải sao chép**.
@@ -213,7 +241,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 # PHẦN III — Người 3
 
-### Slide 15 · Chia phần III — 10 giây
+### Slide 17 · Chia phần III — 10 giây
 **Ý**
 - Báo hiệu phần 3: trong hộp có gì, ai dùng, đi tiếp ở đâu.
 
@@ -222,7 +250,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 16 · Annotation-driven lifecycle — 60 giây
+### Slide 18 · Annotation-driven lifecycle — 60 giây
 **Ý**
 - Lifecycle chạy bằng annotation, ở **4 mức**: suite → test → class → method.
 - Nhờ vậy setup/teardown là khai báo, không phải copy-paste.
@@ -238,7 +266,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 17 · Change the run, not the code — 50 giây
+### Slide 19 · Change the run, not the code — 50 giây
 **Ý**
 - `testng.xml` kéo *chiến lược chạy* ra khỏi code Java.
 - Cấu trúc: Suite → Test → Class.
@@ -251,7 +279,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 18 · Who uses it — 50 giây
+### Slide 20 · Who uses it — 50 giây
 **Ý**
 - **Automation / QA engineer** — mảng chính, gần như mặc định trong thế giới Selenium.
 - **Developer** — integration test và service-level test.
@@ -264,7 +292,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 19 · Still shipping today — 40 giây
+### Slide 21 · Still shipping today — 40 giây
 **Ý**
 - Chứng minh dự án còn sống, không phải đồ cổ:
   - bản hiện tại trên Maven Central
@@ -280,7 +308,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 ---
 
-### Slide 20 · Close — 25 giây
+### Slide 22 · Close — 25 giây
 **Ý**
 - Vòng lại đầu bài: 2004, một người nhìn JUnit 3 và quyết định viết lại thay vì vá.
 - Thứ ra đời không phải test runner — mà là test **orchestrator**.
@@ -296,7 +324,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 
 1. *"Xoá bốn chữ cái đi — test không fail, nó biến mất. Lặng lẽ."* — slide 6
 2. *"Một test bị skip không phải là test bị bỏ qua. Skip là thông tin."* — slide 11
-3. *"Mười bốn năm, để bắt kịp danh sách tính năng của bản 1.0."* — slide 14, **dừng 2 giây sau câu này**
+3. *"Mười bốn năm, để bắt kịp danh sách tính năng của bản 1.0."* — slide 16, **dừng 2 giây sau câu này**
 
 ---
 
@@ -305,7 +333,7 @@ máy cũ hơn tự lùi về fade, không vỡ.
 - **"Chạy song song có thật sự an toàn không?"** Chỉ khi test không chia sẻ state. Với Selenium nghĩa là `ThreadLocal` WebDriver. `@DataProvider(parallel = true)` chạy song song các bộ dữ liệu, nhưng object test dùng chung giữa các method trong class — field mutable là nguồn flaky phổ biến nhất.
 - **"@Factory khác @DataProvider chỗ nào?"** `@DataProvider` tham số hoá ở mức **method**; `@Factory` tạo nhiều **instance** của cả class lúc runtime, tức tham số hoá ở mức class.
 - **"Test phụ thuộc nhau chẳng phải anti-pattern sao?"** Với unit test thì đúng — phải độc lập. Với E2E thì phụ thuộc là có thật: không login thì không checkout được. `dependsOnMethods` chỉ khai báo một sự thật đã tồn tại. Lạm dụng nó trong unit test mới là anti-pattern.
-- **"Còn được bảo trì không?"** Còn — đọc thẳng số trên slide 19, đừng đọc từ trí nhớ.
+- **"Còn được bảo trì không?"** Còn — đọc thẳng số trên slide 21, đừng đọc từ trí nhớ.
 - **"Thị phần bao nhiêu?"** Đừng đưa con số không dẫn nguồn được. Trả lời theo địa hạt: TestNG là mặc định trên thực tế trong mảng Selenium/automation; JUnit là mặc định cho unit test và trong Spring.
 
 ---
@@ -313,6 +341,8 @@ máy cũ hơn tự lùi về fade, không vỡ.
 ## Đã sửa gì so với bản nháp của nhóm
 
 - **JUnit 5 ra năm 2017**, không phải 2026 (JUnit 4: 2006; JUnit 5 chạy song song: bản 5.3, 2018). Timeline sau khi sửa trở thành slide mạnh nhất cả bài.
-- **Bỏ "Amazon, Apple, Microsoft, Google"** và con số "~35% thị phần" — không có nguồn. Thay bằng số liệu dự án kiểm chứng được ở slide 19.
+- **Bỏ "Amazon, Apple, Microsoft, Google"** và con số "~35% thị phần" — không có nguồn. Thay bằng số liệu dự án kiểm chứng được ở slide 21.
 - **Bỏ toàn bộ phần giải thích "unit test là gì / test case là gì"** — khán giả không cần.
 - Gộp ba bản nháp chồng nhau thành một mạch; mỗi slide giờ thuộc đúng một người.
+- **Architecture** nói đúng 5 module: XML Configuration, Annotation Processor, Data Provider, TestNG Engine, Listeners & Reporter.
+- **Pros** đi đủ 4 mục: Order, Data, Speed, Control — mỗi mục một slide.

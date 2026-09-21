@@ -17,6 +17,7 @@ const SEC = [
   { a: '6D28D9', lite: '9B6BF2', tintbg: 'F6F1FE' },   // III
 ];
 const F = 'Segoe UI', FM = 'Consolas', FS = 'Cambria';
+const PAGES = 22;
 
 /* ── animation bookkeeping ───────────────────────────── */
 let animSeq = 0, slideNo = 0;
@@ -48,7 +49,7 @@ function chrome(s, secIdx, label, page) {
     fill: { color: i === secIdx ? c.a : 'DCDEE3' }, objectName: 'rail' + i,
   }));
   s.addText([{ text: String(page), options: { bold: true, color: INK2 } },
-             { text: '  / 20', options: { color: FAINT } }], {
+             { text: '  / ' + PAGES, options: { color: FAINT } }], {
     x: 11.2, y: 6.66, w: 1.4, h: 0.4, align: 'right', valign: 'middle',
     fontFace: F, fontSize: 10.5, charSpacing: 1.2, isTextBox: true, margin: 0,
     objectName: 'chromePage',
@@ -153,9 +154,8 @@ divider(0, 'I', 'What  ·  History  ·  Why',
 {
   const s = newSlide(); s.background = { color: WHITE };
   const c = chrome(s, 0, 'What · architecture', 4);
-  heading(s, [{ text: 'Config in — ', options: { color: INK } },
-              { text: 'decisions', options: { color: c.a } },
-              { text: ' out', options: { color: INK } }]);
+  heading(s, [{ text: 'Five modules, ', options: { color: INK } },
+              { text: 'one engine', options: { color: c.a } }]);
 
   const box = (x, y, w, h, t, d, o = {}) => {
     const g = o.g || A();
@@ -163,9 +163,9 @@ divider(0, 'I', 'What  ·  History  ·  Why',
       fill: { color: o.fill || WHITE }, line: { color: o.line || 'DFE3EA', width: o.lw || 1 },
       shadow: o.noshadow ? undefined : shadow(), objectName: g });
     s.addText(t, { x, y: y + (d ? 0.14 : 0), w, h: d ? 0.36 : h, align: 'center',
-      valign: 'middle', fontFace: F, fontSize: o.ts || 14, bold: true,
+      valign: 'middle', fontFace: F, fontSize: o.ts || 13.5, bold: true,
       color: o.tc || INK, isTextBox: true, margin: 0, objectName: g });
-    if (d) s.addText(d, { x, y: y + 0.46, w, h: 0.3, align: 'center', valign: 'middle',
+    if (d) s.addText(d, { x: x + 0.06, y: y + 0.46, w: w - 0.12, h: 0.3, align: 'center', valign: 'middle',
       fontFace: F, fontSize: 10, color: o.dc || MUTED, isTextBox: true, margin: 0, objectName: g });
     return g;
   };
@@ -175,34 +175,32 @@ divider(0, 'I', 'What  ·  History  ·  Why',
       beginArrowType: 'none' }, flipH: x2 < x1, flipV: y2 < y1, objectName: g });
 
   const gIn = A();
-  box(0.85, 2.38, 2.6, 0.82, 'testng.xml', 'suites · groups · threads', { g: gIn });
-  box(0.85, 3.42, 2.6, 0.82, '@Annotations', '@Test · lifecycle · depends', { g: gIn });
-  box(0.85, 4.46, 2.6, 0.82, '@DataProvider', '@Factory', { g: gIn });
+  box(0.75, 2.38, 2.85, 0.82, 'XML Configuration', 'suite · test · class · group · parameter', { g: gIn });
+  box(0.75, 3.42, 2.85, 0.82, 'Annotation Processor', '@Test · @BeforeMethod · reflection', { g: gIn });
+  box(0.75, 4.46, 2.85, 0.82, 'Data Provider', 'feeds methods from @DataProvider', { g: gIn });
   const gA1 = A();
-  arrow(3.5, 2.79, 4.35, 3.35, gA1); arrow(3.5, 3.83, 4.35, 3.83, gA1); arrow(3.5, 4.87, 4.35, 4.32, gA1);
+  arrow(3.65, 2.79, 4.45, 3.35, gA1); arrow(3.65, 3.83, 4.45, 3.83, gA1); arrow(3.65, 4.87, 4.45, 4.32, gA1);
 
   const gE = A();
-  s.addShape(pres.ShapeType.roundRect, { x: 4.45, y: 2.62, w: 3.5, h: 2.42, rectRadius: 0.16,
+  s.addShape(pres.ShapeType.roundRect, { x: 4.55, y: 2.62, w: 3.5, h: 2.42, rectRadius: 0.16,
     fill: { color: c.tintbg }, line: { color: c.a, width: 1.75 }, shadow: shadow(), objectName: gE });
-  s.addText('TestNG Engine', { x: 4.45, y: 2.9, w: 3.5, h: 0.5, align: 'center',
+  s.addText('TestNG Engine', { x: 4.55, y: 2.9, w: 3.5, h: 0.5, align: 'center',
     fontFace: F, fontSize: 20, bold: true, color: INK, isTextBox: true, margin: 0, objectName: gE });
-  s.addText('resolve dependency graph\nschedule onto thread pool\nexecute', {
-    x: 4.45, y: 3.45, w: 3.5, h: 1.3, align: 'center', fontFace: F, fontSize: 12.5,
+  s.addText('execution core\nreads config\ndrives the run', {
+    x: 4.55, y: 3.45, w: 3.5, h: 1.3, align: 'center', fontFace: F, fontSize: 12.5,
     color: INK2, lineSpacing: 21, isTextBox: true, margin: 0, objectName: gE });
 
   const gL = A();
-  arrow(8.0, 3.83, 8.75, 3.83, gL);
-  box(8.85, 3.42, 2.0, 0.82, 'Listeners', 'every event', { g: gL });
-  s.addShape(pres.ShapeType.line, { x: 9.85, y: 2.62, w: 0.001, h: 0.8,
-    line: { color: 'C7CDD6', width: 1, dashType: 'dash' }, flipV: true, objectName: gL });
-  s.addText('screenshot  ·  log  ·  retry', { x: 8.5, y: 2.22, w: 2.7, h: 0.35, align: 'center',
-    fontFace: F, fontSize: 10.5, color: MUTED, isTextBox: true, margin: 0, objectName: gL });
+  arrow(8.1, 3.83, 8.8, 3.83, gL);
+  s.addShape(pres.ShapeType.roundRect, { x: 8.9, y: 3.22, w: 3.55, h: 1.22, rectRadius: 0.12,
+    fill: { color: 'F0FDF4' }, line: { color: '9ED0B0', width: 1 }, shadow: shadow(), objectName: gL });
+  s.addText('Listeners & Reporter', { x: 8.9, y: 3.38, w: 3.55, h: 0.42, align: 'center',
+    valign: 'middle', fontFace: F, fontSize: 16, bold: true, color: GREEN, isTextBox: true, margin: 0, objectName: gL });
+  s.addText('every event  ·  HTML / XML', { x: 8.9, y: 3.82, w: 3.55, h: 0.38, align: 'center',
+    valign: 'middle', fontFace: F, fontSize: 12, color: '6E9C7E', isTextBox: true, margin: 0, objectName: gL });
 
-  const gR = A();
-  arrow(10.9, 3.83, 11.35, 3.83, gR);
-  box(11.45, 3.42, 1.4, 0.82, 'Report', 'HTML / XML', { g: gR, fill: 'F0FDF4', line: '9ED0B0', tc: GREEN, dc: '6E9C7E', ts: 13 });
-
-  s.addNotes('"Three inputs - an XML file, annotations on the code, and data providers. The engine in the middle does not just run tests: it resolves a dependency graph, schedules onto a thread pool, then executes. Output flows through listeners, where you plug in, and ends as an HTML or XML report."\n\nTrace the path with your hand. Do not read the boxes. ~55s.');
+  caption(s, 'Modular: configure and extend any piece. The engine stays.', 5.55);
+  s.addNotes('"TestNG is modular - five pieces you configure and extend. XML names the suite, the classes, the groups, the parameters. The annotation processor reads @Test and @BeforeMethod through reflection. Data providers feed those methods. The engine is the core: it reads that config and drives the run. Listeners catch every event; the reporter writes HTML or XML."\n\nTrace the path with your hand. Do not read the boxes. ~55s.');
 }
 
 /* ════════════════ 5 · 2004 ════════════════ */
@@ -285,7 +283,7 @@ divider(1, 'II', 'Pros  ·  Cons  ·  Highlight',
              ['🎛️', 'Control', 'testng.xml · listeners · CI']];
   d.forEach((k, i) => card(s, { x: x0 + i * (w + gap), y: 2.6, w, h: 2.05,
     icon: k[0], t: k[1], d: k[2], tc: c.a, fill: c.tintbg, line: c.lite, ts: 19 }));
-  s.addNotes('"Four things, not twenty features: Order. Data. Speed. Control. I will show you two of them."\n\n~30s, then straight into the two diagrams.');
+  s.addNotes('"Four things, not twenty features: Order. Data. Speed. Control. One slide each."\n\n~20s, then straight into the four diagrams.');
 }
 
 /* ════════════════ 11 · DEPENDENCY ════════════════ */
@@ -319,13 +317,56 @@ divider(1, 'II', 'Pros  ·  Cons  ·  Highlight',
   row(4.55, 'dependsOnMethods', c.a,
     [['login', 'FAIL', 1], ['addToCart', 'SKIPPED', 0], ['checkout', 'SKIPPED', 0]],
     '1 red report  ·  1 cause', c.a);
-  s.addNotes('"Login breaks. Without dependencies, cart fails, checkout fails - three red reports, and you spend twenty minutes discovering there was one cause. With dependsOnMethods, TestNG knows the graph: the other two are marked SKIPPED. One red report. One cause."\n\nClosing line: "A skip is not a test being ignored - a skip is information." ~60s.');
+  s.addNotes('"Login breaks. Without dependencies, cart fails, checkout fails - three red reports, and you spend twenty minutes discovering there was one cause. With dependsOnMethods, TestNG knows the graph: the other two are marked SKIPPED. One red report. One cause."\n\nClosing line: "A skip is not a test being ignored - a skip is information." ~50s.');
 }
 
-/* ════════════════ 12 · PARALLEL ════════════════ */
+/* ════════════════ 12 · DATA ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 1, 'Pros · speed', 12);
+  const c = chrome(s, 1, 'Pros · data', 12);
+  heading(s, [{ text: 'One method, ', options: { color: INK } },
+              { text: 'many datasets', options: { color: c.a } }]);
+  const g1 = A();
+  s.addText('WITHOUT @DATAPROVIDER', { x: 0.9, y: 2.26, w: 7, h: 0.3, fontFace: F, fontSize: 10.5,
+    bold: true, charSpacing: 1.8, color: MUTED, isTextBox: true, margin: 0, objectName: g1 });
+  ['testLoginChrome', 'testLoginFirefox', 'testLoginSafari'].forEach((t, i) => {
+    const x = 0.9 + i * 2.62;
+    s.addShape(pres.ShapeType.roundRect, { x, y: 2.62, w: 2.4, h: 0.86, rectRadius: 0.12,
+      fill: { color: CARD }, line: { color: 'D8DCE2', width: 1, dashType: 'dash' },
+      shadow: shadow(), objectName: g1 });
+    s.addText(t, { x, y: 2.73, w: 2.4, h: 0.36, align: 'center', valign: 'middle',
+      fontFace: FM, fontSize: 12, bold: true, color: MUTED, isTextBox: true, margin: 0, objectName: g1 });
+    s.addText('copy-paste', { x, y: 3.08, w: 2.4, h: 0.3, align: 'center', valign: 'middle',
+      fontFace: F, fontSize: 10.5, bold: true, color: 'A6ADB8', charSpacing: 0.8,
+      isTextBox: true, margin: 0, objectName: g1 });
+  });
+  s.addText('3 methods  ·  1 idea', { x: 8.9, y: 2.62, w: 3.8, h: 0.86, valign: 'middle',
+    fontFace: F, fontSize: 15, bold: true, color: MUTED, isTextBox: true, margin: 0, objectName: g1 });
+
+  const g2 = A();
+  s.addText('@DataProvider', { x: 0.9, y: 3.88, w: 5, h: 0.3, fontFace: F, fontSize: 10.5,
+    bold: true, charSpacing: 1.8, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  s.addShape(pres.ShapeType.roundRect, { x: 0.9, y: 4.24, w: 7.64, h: 1.18, rectRadius: 0.12,
+    fill: { color: c.tintbg }, line: { color: c.lite, width: 1 }, shadow: shadow(), objectName: g2 });
+  s.addText('testLogin(String browser)', { x: 0.9, y: 4.34, w: 7.64, h: 0.4, align: 'center',
+    valign: 'middle', fontFace: FM, fontSize: 16, bold: true, color: INK, isTextBox: true, margin: 0, objectName: g2 });
+  ['Chrome', 'Firefox', 'Safari'].forEach((t, i) => {
+    const x = 2.05 + i * 1.85;
+    s.addShape(pres.ShapeType.roundRect, { x, y: 4.82, w: 1.65, h: 0.42, rectRadius: 0.21,
+      fill: { color: WHITE }, line: { color: c.lite, width: 1 }, objectName: g2 });
+    s.addText(t, { x, y: 4.82, w: 1.65, h: 0.42, align: 'center', valign: 'middle',
+      fontFace: F, fontSize: 12, bold: true, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  });
+  s.addText('1 method  ·  3 datasets', { x: 8.9, y: 4.24, w: 3.8, h: 1.18, valign: 'middle',
+    fontFace: F, fontSize: 15, bold: true, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  caption(s, '@DataProvider parameterizes the method.  @Factory parameterizes the class.', 5.7);
+  s.addNotes('"Without a data provider, ten browsers means ten copy-pasted methods. With @DataProvider, one method, many datasets: Chrome, Firefox, Safari - same assertion, three rows. @DataProvider parameterizes the method. @Factory does the same thing one level up: it parameterizes the class."\n\nThis is the wall from slide 8, taken down. ~40s.');
+}
+
+/* ════════════════ 13 · PARALLEL ════════════════ */
+{
+  const s = newSlide(); s.background = { color: WHITE };
+  const c = chrome(s, 1, 'Pros · speed', 13);
   heading(s, [{ text: '40 minutes ', options: { color: INK } },
               { text: '→', options: { color: 'C9CDD4' } },
               { text: ' 10', options: { color: c.a } }]);
@@ -351,13 +392,50 @@ divider(1, 'II', 'Pros  ·  Cons  ·  Highlight',
   s.addText('10′', { x: 3.45, y: 4.72, w: 1.4, h: 0.7, valign: 'middle', fontFace: F,
     fontSize: 30, bold: true, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
   caption(s, 'Granularity:  methods · classes · tests · instances', 6.15);
-  s.addNotes('"Parallel execution, in the core - no plugin. Four suites take forty minutes in sequence, ten across four threads. And you pick the granularity: by method, class, test, or instance."\n\nBe honest: only valid when tests share no state - with Selenium that means a ThreadLocal WebDriver. Saying this shows you actually use it. ~55s.');
+  s.addNotes('"Parallel execution, in the core - no plugin. Four suites take forty minutes in sequence, ten across four threads. And you pick the granularity: by method, class, test, or instance."\n\nBe honest: only valid when tests share no state - with Selenium that means a ThreadLocal WebDriver. Saying this shows you actually use it. ~45s.');
 }
 
-/* ════════════════ 13 · CONS ════════════════ */
+/* ════════════════ 14 · CONTROL ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  chrome(s, 1, 'Cons', 13);
+  const c = chrome(s, 1, 'Pros · control', 14);
+  heading(s, [{ text: "Don't rebuild. ", options: { color: INK } },
+              { text: 'Reconfigure.', options: { color: c.a } }]);
+  const g1 = A();
+  s.addText('TO SKIP A TEST', { x: 0.9, y: 2.26, w: 6, h: 0.3, fontFace: F, fontSize: 10.5,
+    bold: true, charSpacing: 1.8, color: MUTED, isTextBox: true, margin: 0, objectName: g1 });
+  ['edit Java', 'compile', 'rerun'].forEach((t, i) => {
+    const x = 0.9 + i * 2.5;
+    s.addShape(pres.ShapeType.roundRect, { x, y: 2.62, w: 2.32, h: 0.7, rectRadius: 0.12,
+      fill: { color: 'E4E7EC' }, objectName: g1 });
+    s.addText(t, { x, y: 2.62, w: 2.32, h: 0.7, align: 'center', valign: 'middle',
+      fontFace: F, fontSize: 15, color: '6B7280', isTextBox: true, margin: 0, objectName: g1 });
+  });
+  s.addText('touch source', { x: 8.5, y: 2.62, w: 4.0, h: 0.7, valign: 'middle',
+    fontFace: F, fontSize: 15, bold: true, color: MUTED, isTextBox: true, margin: 0, objectName: g1 });
+
+  const g2 = A();
+  s.addText('testng.xml', { x: 0.9, y: 3.7, w: 5, h: 0.3, fontFace: F, fontSize: 10.5,
+    bold: true, charSpacing: 1.8, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  [['include: smoke', '12 tests'], ['include: regression', '400 tests']].forEach((r, i) => {
+    const y = 4.08 + i * 0.72;
+    s.addShape(pres.ShapeType.roundRect, { x: 0.9, y, w: 7.4, h: 0.62, rectRadius: 0.12,
+      fill: { color: c.tintbg }, line: { color: c.lite, width: 1 }, shadow: shadow(), objectName: g2 });
+    s.addText(r[0], { x: 1.15, y, w: 4.4, h: 0.62, valign: 'middle',
+      fontFace: FM, fontSize: 15, color: INK, isTextBox: true, margin: 0, objectName: g2 });
+    s.addText(r[1], { x: 5.6, y, w: 2.5, h: 0.62, align: 'right', valign: 'middle',
+      fontFace: F, fontSize: 16, bold: true, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  });
+  s.addText('same classes', { x: 8.5, y: 4.08, w: 4.0, h: 1.34, valign: 'middle',
+    fontFace: F, fontSize: 15, bold: true, color: c.a, isTextBox: true, margin: 0, objectName: g2 });
+  caption(s, 'Listeners plug in the same way: screenshot, log, retry — no test edited.', 5.7);
+  s.addNotes('"To skip a test the old way, you edit Java, compile, rerun. With testng.xml you pick the run from outside the code: include smoke, twelve tests; include regression, four hundred. Same classes. Different XML. Listeners plug in the same way - screenshot, log, retry - without touching a test method."\n\nThis is the Control card from slide 10, made concrete. ~40s.');
+}
+
+/* ════════════════ 15 · CONS ════════════════ */
+{
+  const s = newSlide(); s.background = { color: WHITE };
+  chrome(s, 1, 'Cons', 15);
   heading(s, 'What it costs');
   const w = 5.5, gap = 0.6, x0 = (13.333 - (w * 2 + gap)) / 2;
   card(s, { x: x0, y: 2.55, w, h: 2.62, icon: '🧩', t: 'Complexity',
@@ -366,13 +444,13 @@ divider(1, 'II', 'Pros  ·  Cons  ·  Highlight',
   card(s, { x: x0 + w + gap, y: 2.55, w, h: 2.62, icon: '🪨', t: 'Overkill for unit tests',
     d: "One monolithic dependency vs JUnit 5's modular Platform / Jupiter / Vintage.\n\nIf you only write fast isolated unit tests, the orchestration engine is dead weight — and Spring Boot defaults to JUnit 5.",
     ds: 12.5, dh: 1.9 });
-  s.addNotes('"Now the honest part. That power has a price. More mechanisms means more to learn - and dependencies used badly bury the real failure under a chain of skips. And if all you write is isolated unit tests, this whole orchestration engine is dead weight: JUnit 5 is lighter, modular, and the Spring Boot default."\n\nIn front of experts this slide buys credibility for everything before it. Do not rush. ~60s.');
+  s.addNotes('"Now the honest part. That power has a price. More mechanisms means more to learn - and dependencies used badly bury the real failure under a chain of skips. And if all you write is isolated unit tests, this whole orchestration engine is dead weight: JUnit 5 is lighter, modular, and the Spring Boot default."\n\nIn front of experts this slide buys credibility for everything before it. Do not rush. ~50s.');
 }
 
-/* ════════════════ 14 · TIMELINE ════════════════ */
+/* ════════════════ 16 · TIMELINE ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 1, 'Highlight', 14);
+  const c = chrome(s, 1, 'Highlight', 16);
   heading(s, [{ text: 'The real win: ', options: { color: INK } },
               { text: 'getting copied', options: { color: c.a } }]);
   const gL = A();
@@ -398,17 +476,17 @@ divider(1, 'II', 'Pros  ·  Cons  ·  Highlight',
       fontFace: F, fontSize: 11.5, color: MUTED, isTextBox: true, margin: 0, objectName: g });
   });
   caption(s, '14 years for the ecosystem to catch up with the 1.0 feature list', 5.75);
-  s.addNotes('"This is the slide to remember. You do not measure a framework by market share - you measure it by what competitors had to copy. 2004: TestNG ships annotations, groups, dependencies, parallel. 2006: JUnit 4 adds annotations. 2017: JUnit 5 adds parameterized tests and tags - which are groups. 2018: parallel execution. Fourteen years to catch up with the 1.0 feature list."\n\nPeak of the talk. Slow down; pause after "fourteen years". ~65s. Hand over.');
+  s.addNotes('"This is the slide to remember. You do not measure a framework by market share - you measure it by what competitors had to copy. 2004: TestNG ships annotations, groups, dependencies, parallel. 2006: JUnit 4 adds annotations. 2017: JUnit 5 adds parameterized tests and tags - which are groups. 2018: parallel execution. Fourteen years to catch up with the 1.0 feature list."\n\nPeak of the talk. Slow down; pause after "fourteen years". ~60s. Hand over.');
 }
 
-/* ════════════════ 15 · DIVIDER III ════════════════ */
+/* ════════════════ 17 · DIVIDER III ════════════════ */
 divider(2, 'III', 'Features  ·  Users  ·  Reference',
   '"Part three: what is actually in the box, who uses it, and where to go next."\n\nSPEAKER 3 owns every violet slide. 10 seconds.');
 
-/* ════════════════ 16 · FEATURES ════════════════ */
+/* ════════════════ 18 · FEATURES ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 2, 'Features', 16);
+  const c = chrome(s, 2, 'Features', 18);
   heading(s, 'Annotation-driven lifecycle');
   const chips = [['@BeforeSuite', 1], ['@BeforeTest', 0], ['@BeforeClass', 0], ['@BeforeMethod', 0],
                  ['@Test', 1], ['@AfterMethod', 0], ['@AfterClass', 0], ['@AfterTest', 0], ['@AfterSuite', 1]];
@@ -432,10 +510,10 @@ divider(2, 'III', 'Features  ·  Users  ·  Reference',
   s.addNotes('"The lifecycle is annotation-driven, at four levels - suite, test, class, method - so setup and teardown are declarative, not copy-pasted. On top of that: groups, DataProvider for one test across many datasets, Factory for many instances of one class, and listeners that hook every event to screenshot, log, or retry."\n\nSay: "@Factory parameterizes the class; @DataProvider parameterizes the method" - that distinction is the expert-level detail. ~60s.');
 }
 
-/* ════════════════ 17 · TESTNG.XML ════════════════ */
+/* ════════════════ 19 · TESTNG.XML ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 2, 'Features · configuration', 17);
+  const c = chrome(s, 2, 'Features · configuration', 19);
   heading(s, [{ text: 'Change the run, ', options: { color: INK } },
               { text: 'not the code', options: { color: c.a } }]);
   const g = A();
@@ -466,10 +544,10 @@ divider(2, 'III', 'Features  ·  Users  ·  Reference',
   s.addNotes('"testng.xml pulls the run strategy out of the Java code. Your per-commit pipeline runs only the smoke group; the nightly pipeline runs full regression. Same codebase, different XML file - no test logic touched, no rebuild."\n\nBridge to CI: runs from Maven, Gradle and the command line, so it drops straight into Jenkins or GitHub Actions. ~50s.');
 }
 
-/* ════════════════ 18 · WHO USES IT ════════════════ */
+/* ════════════════ 20 · WHO USES IT ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 2, 'Who uses it', 18);
+  const c = chrome(s, 2, 'Who uses it', 20);
   heading(s, [{ text: 'Wherever a suite gets ', options: { color: INK } },
               { text: 'big', options: { color: c.a } }]);
   const w = 3.6, gap = 0.44, x0 = (13.333 - (w * 3 + gap * 2)) / 2;
@@ -489,10 +567,10 @@ divider(2, 'III', 'Features  ·  Users  ·  Reference',
   s.addNotes('"Who reaches for TestNG? Automation and QA engineers first - it is the default in the Selenium world. Developers, for integration and service-level tests. DevOps, to gate pipelines by group. It plugs into Maven, Gradle, Jenkins, GitHub Actions, GitLab, both major IDEs."\n\nDeliberately no customer-logo claims: we have no verifiable source, and an expert audience will ask for one. ~50s.');
 }
 
-/* ════════════════ 19 · REFERENCE ════════════════ */
+/* ════════════════ 21 · REFERENCE ════════════════ */
 {
   const s = newSlide(); s.background = { color: WHITE };
-  const c = chrome(s, 2, 'Reference', 19);
+  const c = chrome(s, 2, 'Reference', 21);
   heading(s, [{ text: 'Still shipping ', options: { color: INK } },
               { text: 'today', options: { color: c.a } }]);
   const H = 0.46, gap = 0.3;
@@ -515,7 +593,7 @@ divider(2, 'III', 'Features  ·  Users  ·  Reference',
   s.addNotes('"And it is not a museum piece: current release on Maven Central, last commit the day before this deck was built, 218 contributors, Apache 2.0, Java 11 and up."\n\nThese are real figures with a capture date on the slide - if someone asks for a source, it is the shields.io badges on the project repo. Docs at testng.org. ~40s.');
 }
 
-/* ════════════════ 20 · CLOSE ════════════════ */
+/* ════════════════ 22 · CLOSE ════════════════ */
 {
   const s = newSlide();
   s.background = { color: DARK };

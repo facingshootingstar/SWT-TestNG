@@ -11,7 +11,7 @@ import re, shutil, zipfile, os, sys
 SRC = 'TestNG.pptx'
 DST = 'TestNG-animated.pptx'
 
-DIVIDERS = {2, 9, 15}          # chapter breaks  -> Push
+DIVIDERS = {2, 9, 17}          # chapter breaks  -> Push
 FADE_ONLY = {1}                # opening slide   -> Fade
 STAGGER = 220                  # ms between animation groups
 DUR = 500                      # ms per fade
