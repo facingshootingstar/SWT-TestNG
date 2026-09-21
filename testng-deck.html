@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestNG</title>
+<style>
+  :root{
+    --bg:#F7F7F4;
+    --card:#FFFFFF;
+    --ink:#15181D;
+    --ink2:#3C4450;
+    --muted:#8A93A0;
+    --line:#E4E4DE;
+    --s1:#3457D5;   /* section I  */
+    --s2:#0F766E;   /* section II */
+    --s3:#6D28D9;   /* section III*/
+    --ok:#15803D;
+    --no:#B91C1C;
+    --a:var(--s1);
+    --font:"Inter","SF Pro Display",-apple-system,"Segoe UI",system-ui,sans-serif;
+    --mono:"JetBrains Mono","SF Mono",Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--font);
+    -webkit-font-smoothing:antialiased;user-select:none;cursor:default;
+  }
+
+  .slide{
+    position:absolute;inset:0;display:none;
+    flex-direction:column;align-items:center;justify-content:center;
+    padding:11vh 7vw 9vh;text-align:center;
+    opacity:0;transform:translateY(14px);
+    transition:opacity .45s cubic-bezier(.2,.7,.2,1),transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .slide.active{display:flex;opacity:1;transform:none}
+  .slide::after{
+    content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse 55% 45% at 78% 12%,color-mix(in srgb,var(--a) 9%,transparent),transparent 65%);
+  }
+  .s1{--a:var(--s1)} .s2{--a:var(--s2)} .s3{--a:var(--s3)}
+
+  /* ---- section chrome (the implicit hand-off cue) ---- */
+  .tag{
+    position:absolute;top:5.2vh;left:5.5vw;display:flex;align-items:center;gap:.8em;
+    font-size:clamp(.62rem,.82vw,.78rem);letter-spacing:.26em;text-transform:uppercase;
+    font-weight:650;color:var(--a);
+  }
+  .tag .rn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:1.9em;height:1.9em;border-radius:50%;
+    background:var(--a);color:#fff;font-size:.86em;letter-spacing:0;
+  }
+  .rail{position:absolute;bottom:5vh;left:5.5vw;display:flex;gap:.45em}
+  .rail i{width:26px;height:3px;border-radius:2px;background:#DCDCD5;display:block}
+  .rail i.on{background:var(--a);width:46px}
+
+  /* ---- type ---- */
+  h1{font-size:clamp(3rem,7.6vw,7.4rem);font-weight:800;letter-spacing:-.045em;line-height:.95}
+  h2{font-size:clamp(2rem,4.6vw,4.4rem);font-weight:760;letter-spacing:-.035em;line-height:1.04}
+  h3{font-size:clamp(1.4rem,2.9vw,2.7rem);font-weight:700;letter-spacing:-.025em;line-height:1.14}
+  .a{color:var(--a)}
+  .lead{font-size:clamp(.95rem,1.5vw,1.35rem);color:var(--muted);font-weight:450;margin-top:2.6vh;max-width:34ch;line-height:1.5}
+  .lead b{color:var(--ink);font-weight:650}
+  .eyebrow{font-size:clamp(.62rem,.85vw,.8rem);letter-spacing:.3em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2.6vh}
+
+  /* ---- divider slide ---- */
+  .divider .num{
+    font-size:clamp(5rem,15vw,14rem);font-weight:800;color:var(--a);
+    letter-spacing:-.06em;line-height:.8;opacity:.16
+  }
+  .divider h2{margin-top:-2.5vh}
+  .divider .rule{width:64px;height:4px;border-radius:3px;background:var(--a);margin-top:4vh}
+
+  /* ---- grids / cards ---- */
+  .grid{display:grid;gap:clamp(.9rem,1.6vw,1.6rem);width:100%;max-width:1180px;margin-top:5.5vh}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:clamp(1.1rem,2vw,1.9rem);text-align:left;
+    box-shadow:0 1px 2px rgba(16,20,28,.04),0 10px 26px -18px rgba(16,20,28,.22);
+  }
+  .card .ic{font-size:clamp(1.3rem,2vw,1.8rem);line-height:1;margin-bottom:1.2vh}
+  .card .t{font-size:clamp(1rem,1.65vw,1.5rem);font-weight:700;letter-spacing:-.015em}
+  .card .d{font-size:clamp(.76rem,1.02vw,.95rem);color:var(--muted);margin-top:.9vh;line-height:1.5}
+  .card.hl{border-color:color-mix(in srgb,var(--a) 42%,var(--line));background:color-mix(in srgb,var(--a) 4%,#fff)}
+  .card.hl .t{color:var(--a)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.6em;justify-content:center;margin-top:5vh;max-width:980px}
+  .chip{
+    font-family:var(--mono);font-size:clamp(.72rem,1.08vw,1rem);
+    background:#fff;border:1px solid var(--line);border-radius:999px;
+    padding:.55em 1.1em;color:var(--ink2);
+  }
+  .chip.on{background:var(--a);border-color:var(--a);color:#fff}
+
+  .codeblock{
+    margin-top:5vh;font-family:var(--mono);font-size:clamp(.88rem,1.9vw,1.7rem);
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:1.1em 1.6em;text-align:left;line-height:1.75;color:var(--ink2);
+    box-shadow:0 10px 30px -22px rgba(16,20,28,.4);
+  }
+  .codeblock .c{color:#A7AEBA}
+  .codeblock .k{color:#9333EA}
+  .codeblock .y{color:#B45309}
+
+  /* ---- images ---- */
+  img{display:block}
+  .logo-hero{height:clamp(62px,9vh,110px);width:auto;object-fit:contain}
+  .logo-hero,.blend{mix-blend-mode:multiply}
+  .portrait{
+    width:clamp(130px,17vh,210px);height:clamp(130px,17vh,210px);
+    border-radius:50%;object-fit:cover;border:5px solid #fff;
+    box-shadow:0 18px 48px -20px rgba(16,20,28,.45);
+  }
+  .wall{display:flex;flex-wrap:wrap;gap:clamp(1.4rem,3.4vw,3.6rem);justify-content:center;align-items:center;max-width:1080px;margin-top:5vh}
+  .wall img{height:clamp(30px,4.6vh,52px);width:auto;object-fit:contain}
+  .badges{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;max-width:920px;margin-top:5vh}
+  .badges img{height:clamp(26px,3.6vh,38px)}
+  .pair{display:flex;align-items:center;gap:clamp(1.4rem,3vw,3rem);margin-bottom:1vh}
+  .pair span{font-size:clamp(1.2rem,2.4vw,2.2rem);color:#D3D3CB;font-weight:300}
+
+  svg{display:block;max-width:100%;height:auto}
+  .fig{width:100%;max-width:1020px;margin-top:5vh}
+  .fig.sm{max-width:830px}
+  .cap{font-size:clamp(.72rem,.98vw,.9rem);color:var(--muted);margin-top:3vh}
+  .cap code{font-family:var(--mono);color:var(--ink2)}
+
+  /* ---- hud ---- */
+  .bar{position:fixed;left:0;bottom:0;height:3px;background:var(--a);transition:width .4s cubic-bezier(.2,.7,.2,1);z-index:40}
+  .hud{position:fixed;bottom:4.6vh;right:5.5vw;font-size:.72rem;letter-spacing:.16em;color:#B6B6AE;z-index:40;font-variant-numeric:tabular-nums}
+  .hud b{color:var(--ink2);font-weight:650}
+  .clock{position:fixed;top:5.2vh;right:5.5vw;font-size:.72rem;letter-spacing:.16em;color:#B6B6AE;z-index:40;font-variant-numeric:tabular-nums}
+  .clock.run{color:var(--ink2)} .clock.over{color:var(--no)}
+  .notes{
+    position:fixed;left:0;right:0;bottom:0;max-height:40vh;overflow-y:auto;display:none;z-index:60;
+    background:rgba(255,255,255,.98);border-top:1px solid var(--line);padding:2.4vh 5.5vw 3.2vh;text-align:left;
+    box-shadow:0 -20px 50px -30px rgba(16,20,28,.5);user-select:text;backdrop-filter:blur(14px);
+  }
+  .notes.on{display:block}
+  .notes h5{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2vh}
+  .notes p{font-size:clamp(.8rem,1.05vw,.96rem);color:var(--ink2);line-height:1.65;max-width:105ch}
+  .notes p+p{margin-top:.7em}
+  .notes .say{color:var(--ink);font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ 1 · TITLE ══════════════ -->
+<section class="slide active s1">
+  <img class="logo-hero" src="https://github.com/testng-team.png" alt="TestNG" referrerpolicy="no-referrer">
+  <h1 style="margin-top:4vh">TestNG</h1>
+  <p class="lead">Test <b>Next Generation</b></p>
+  <template class="note"><p class="say">"TestNG. Test Next Generation. A name chosen in 2004 — and over the next fifteen minutes we'll show it wasn't an overstatement."</p><p>20 seconds. Don't read an agenda — the three coloured sections do that job.</p></template>
+</section>
+
+<!-- ══════════════ SECTION I ══════════════ -->
+<section class="slide s1 divider">
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <div class="num">I</div>
+  <h2>What · History · Why</h2>
+  <div class="rule"></div>
+  <template class="note"><p class="say">"Part one: what TestNG is, where it came from, and why it had to exist."</p><p>Speaker 1 owns everything blue. 10 seconds — move on.</p></template>
+</section>
+
+<!-- 3 · WHAT -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> What</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <div class="pair">
+    <img src="https://cdn.simpleicons.org/openjdk/15181D" style="height:clamp(36px,5.6vh,62px)" alt="Java" referrerpolicy="no-referrer">
+    <span>+</span>
+    <img class="blend" src="https://github.com/testng-team.png" style="height:clamp(40px,6vh,70px)" alt="TestNG" referrerpolicy="no-referrer">
+  </div>
+  <h2 style="margin-top:3vh">Write · Organise · <span class="a">Orchestrate</span></h2>
+  <p class="lead">Open-source testing framework for Java.</p>
+  <template class="note"><p class="say">"One sentence: TestNG is an open-source testing framework for Java. Every framework does the first two words. Everything that makes TestNG different lives in the third one — orchestrate."</p><p>Plant the word "orchestrate". It is the thread of the whole talk. ~40s.</p></template>
+</section>
+
+<!-- 4 · ARCHITECTURE -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> What · architecture</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <h3>Config in — <span class="a">decisions</span> out</h3>
+  <div class="fig">
+    <svg viewBox="0 0 1000 268" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+      <defs><marker id="m1" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#B9BFC9"/></marker></defs>
+      <g>
+        <rect x="8" y="26" width="196" height="54" rx="13" fill="#fff" stroke="#DFE3EA"/>
+        <text x="106" y="52" fill="#15181D" font-size="16" font-weight="650" text-anchor="middle">testng.xml</text>
+        <text x="106" y="70" fill="#98A0AD" font-size="11.5" text-anchor="middle">suites · groups · threads</text>
+        <rect x="8" y="106" width="196" height="54" rx="13" fill="#fff" stroke="#DFE3EA"/>
+        <text x="106" y="132" fill="#15181D" font-size="16" font-weight="650" text-anchor="middle">@Annotations</text>
+        <text x="106" y="150" fill="#98A0AD" font-size="11.5" text-anchor="middle">@Test · lifecycle · depends</text>
+        <rect x="8" y="186" width="196" height="54" rx="13" fill="#fff" stroke="#DFE3EA"/>
+        <text x="106" y="212" fill="#15181D" font-size="16" font-weight="650" text-anchor="middle">@DataProvider</text>
+        <text x="106" y="230" fill="#98A0AD" font-size="11.5" text-anchor="middle">@Factory</text>
+      </g>
+      <path d="M212 53 L294 112" stroke="#C7CDD6" stroke-width="1.4" fill="none" marker-end="url(#m1)"/>
+      <path d="M212 133 L294 133" stroke="#C7CDD6" stroke-width="1.4" fill="none" marker-end="url(#m1)"/>
+      <path d="M212 213 L294 154" stroke="#C7CDD6" stroke-width="1.4" fill="none" marker-end="url(#m1)"/>
+      <rect x="306" y="62" width="268" height="144" rx="18" fill="#EEF2FE" stroke="#3457D5" stroke-width="1.8"/>
+      <text x="440" y="100" fill="#15181D" font-size="20" font-weight="750" text-anchor="middle">TestNG Engine</text>
+      <text x="440" y="131" fill="#4B5563" font-size="13.5" text-anchor="middle">resolve dependency graph</text>
+      <text x="440" y="154" fill="#4B5563" font-size="13.5" text-anchor="middle">schedule onto thread pool</text>
+      <text x="440" y="177" fill="#4B5563" font-size="13.5" text-anchor="middle">execute</text>
+      <path d="M582 134 L664 134" stroke="#C7CDD6" stroke-width="1.4" fill="none" marker-end="url(#m1)"/>
+      <rect x="676" y="106" width="150" height="54" rx="13" fill="#fff" stroke="#DFE3EA"/>
+      <text x="751" y="132" fill="#15181D" font-size="16" font-weight="650" text-anchor="middle">Listeners</text>
+      <text x="751" y="150" fill="#98A0AD" font-size="11.5" text-anchor="middle">every event</text>
+      <path d="M751 102 L751 56 L888 56" stroke="#C7CDD6" stroke-width="1.2" stroke-dasharray="4 4" fill="none" marker-end="url(#m1)"/>
+      <text x="898" y="50" fill="#98A0AD" font-size="12">screenshot</text>
+      <text x="898" y="68" fill="#98A0AD" font-size="12">log · retry</text>
+      <path d="M834 134 L884 134" stroke="#C7CDD6" stroke-width="1.4" fill="none" marker-end="url(#m1)"/>
+      <rect x="892" y="106" width="100" height="54" rx="13" fill="#F0FDF4" stroke="#86C99C"/>
+      <text x="942" y="130" fill="#15803D" font-size="15" font-weight="700" text-anchor="middle">Report</text>
+      <text x="942" y="149" fill="#6E9C7E" font-size="11.5" text-anchor="middle">HTML / XML</text>
+    </svg>
+  </div>
+  <template class="note"><p class="say">"Three inputs — an XML file, annotations on the code, and data providers. The engine in the middle doesn't just run tests: it resolves a dependency graph, schedules onto a thread pool, then executes. Output flows through listeners, where you plug in, and ends as an HTML or XML report."</p><p>Trace the path with your hand. Don't read the boxes. ~55s.</p></template>
+</section>
+
+<!-- 5 · HISTORY 2004 -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> History</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <img class="blend" src="https://github.com/junit-team.png" style="height:clamp(46px,7vh,86px)" alt="JUnit" referrerpolicy="no-referrer">
+  <h1 style="margin-top:4vh">2004</h1>
+  <p class="lead">JUnit 3 ruled Java. And it <b>wasn't enough</b>.</p>
+  <template class="note"><p class="say">"Back to 2004. JUnit 3 was effectively the only option in Java. It was good at what it was built for. The problem is we had started asking it to do something else."</p><p>~30s.</p></template>
+</section>
+
+<!-- 6 · HISTORY problem -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> History</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <h3>The method name <span class="a">was</span> the API</h3>
+  <div class="codeblock">
+    <span class="c">// JUnit 3</span><br>
+    <span class="k">public void</span> <span class="y">test</span>Login() { … }<br>
+    <span class="c">// drop four letters → the test silently disappears</span>
+  </div>
+  <template class="note"><p class="say">"In JUnit 3 you declared a test by naming the method 'test-something'. A naming convention was the API. Drop four letters and the test doesn't fail — it disappears. Silently. Nobody finds out."</p><p>Land on the word "silently" — the worst failure mode in testing. ~45s.</p></template>
+</section>
+
+<!-- 7 · CREATOR -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> History</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <img class="portrait" src="https://github.com/cbeust.png" alt="Cédric Beust" referrerpolicy="no-referrer">
+  <h2 style="margin-top:3.4vh">Cédric Beust</h2>
+  <p class="lead">Didn't patch JUnit. <b>Rewrote it.</b></p>
+  <p class="cap">Inspired by JUnit &amp; NUnit · built for integration testing</p>
+  <template class="note"><p class="say">"Cédric Beust. He didn't send JUnit a patch — he started over, took the best of JUnit and of NUnit from .NET, and designed for something JUnit never targeted: integration testing."</p><p>Say out loud, don't put on the slide: JUnit 4 — the annotation-based one — only arrived in 2006. TestNG was two years ahead. ~45s.</p></template>
+</section>
+
+<!-- 8 · WHY -->
+<section class="slide s1">
+  <div class="tag"><span class="rn">I</span> Why</div>
+  <div class="rail"><i class="on"></i><i></i><i></i></div>
+  <h3>Three walls</h3>
+  <div class="grid g3">
+    <div class="card"><div class="ic">🚫</div><div class="t">No groups</div><div class="d">Run only the smoke tests? No mechanism.</div></div>
+    <div class="card"><div class="ic">🔗</div><div class="t">No dependencies</div><div class="d">Login fails, checkout runs anyway — and fails too.</div></div>
+    <div class="card"><div class="ic">📋</div><div class="t">No parameters</div><div class="d">Ten datasets meant ten copy-pasted methods.</div></div>
+  </div>
+  <p class="cap">JUnit 3 was built for isolated unit tests. Integration tests are not isolated.</p>
+  <template class="note"><p class="say">"The real walls were these three: you couldn't group, you couldn't declare dependencies, you couldn't pass parameters. JUnit 3 assumed every test was an island. Integration tests don't live on islands. That gap is the entire reason TestNG exists."</p><p>~55s. This closes Part I — hand over.</p></template>
+</section>
+
+<!-- ══════════════ SECTION II ══════════════ -->
+<section class="slide s2 divider">
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <div class="num">II</div>
+  <h2>Pros · Cons · Highlight</h2>
+  <div class="rule"></div>
+  <template class="note"><p class="say">"Part two: what it buys you, what it costs you, and the one thing worth remembering."</p><p>Speaker 2 owns everything teal. 10 seconds.</p></template>
+</section>
+
+<!-- 10 · PROS -->
+<section class="slide s2">
+  <div class="tag"><span class="rn">II</span> Pros</div>
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <h3>Four things you get</h3>
+  <div class="grid g4">
+    <div class="card hl"><div class="ic">🧭</div><div class="t">Order</div><div class="d">Lifecycle · priority · dependsOn</div></div>
+    <div class="card hl"><div class="ic">🗂️</div><div class="t">Data</div><div class="d">@DataProvider · @Factory</div></div>
+    <div class="card hl"><div class="ic">⚡</div><div class="t">Speed</div><div class="d">Native parallel execution</div></div>
+    <div class="card hl"><div class="ic">🎛️</div><div class="t">Control</div><div class="d">testng.xml · listeners · CI</div></div>
+  </div>
+  <template class="note"><p class="say">"Four things, not twenty features: Order. Data. Speed. Control. I'll show you two of them."</p><p>~30s, then straight into the two diagrams.</p></template>
+</section>
+
+<!-- 11 · PRO order -->
+<section class="slide s2">
+  <div class="tag"><span class="rn">II</span> Pros · order</div>
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <h3>One real failure, <span class="a">not three</span></h3>
+  <div class="fig">
+    <svg viewBox="0 0 1000 232" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+      <text x="14" y="26" fill="#98A0AD" font-size="12" letter-spacing="1.8">WITHOUT DEPENDENCIES</text>
+      <g>
+        <rect x="14" y="40" width="176" height="54" rx="13" fill="#FEF2F2" stroke="#E8A8A8"/>
+        <text x="102" y="64" fill="#15181D" font-size="14.5" font-weight="650" text-anchor="middle">login</text>
+        <text x="102" y="82" fill="#B91C1C" font-size="11.5" font-weight="650" text-anchor="middle">FAIL</text>
+        <rect x="204" y="40" width="176" height="54" rx="13" fill="#FEF2F2" stroke="#E8A8A8"/>
+        <text x="292" y="64" fill="#15181D" font-size="14.5" font-weight="650" text-anchor="middle">addToCart</text>
+        <text x="292" y="82" fill="#B91C1C" font-size="11.5" font-weight="650" text-anchor="middle">FAIL</text>
+        <rect x="394" y="40" width="176" height="54" rx="13" fill="#FEF2F2" stroke="#E8A8A8"/>
+        <text x="482" y="64" fill="#15181D" font-size="14.5" font-weight="650" text-anchor="middle">checkout</text>
+        <text x="482" y="82" fill="#B91C1C" font-size="11.5" font-weight="650" text-anchor="middle">FAIL</text>
+        <text x="600" y="73" fill="#B91C1C" font-size="15.5" font-weight="700">3 red reports · 1 cause</text>
+      </g>
+      <text x="14" y="152" fill="#0F766E" font-size="12" letter-spacing="1.8" font-weight="650">dependsOnMethods</text>
+      <g>
+        <rect x="14" y="166" width="176" height="54" rx="13" fill="#FEF2F2" stroke="#E8A8A8"/>
+        <text x="102" y="190" fill="#15181D" font-size="14.5" font-weight="650" text-anchor="middle">login</text>
+        <text x="102" y="208" fill="#B91C1C" font-size="11.5" font-weight="650" text-anchor="middle">FAIL</text>
+        <rect x="204" y="166" width="176" height="54" rx="13" fill="#F7F7F4" stroke="#D8DCE2" stroke-dasharray="5 4"/>
+        <text x="292" y="190" fill="#8A93A0" font-size="14.5" font-weight="650" text-anchor="middle">addToCart</text>
+        <text x="292" y="208" fill="#A6ADB8" font-size="11.5" font-weight="650" text-anchor="middle">SKIPPED</text>
+        <rect x="394" y="166" width="176" height="54" rx="13" fill="#F7F7F4" stroke="#D8DCE2" stroke-dasharray="5 4"/>
+        <text x="482" y="190" fill="#8A93A0" font-size="14.5" font-weight="650" text-anchor="middle">checkout</text>
+        <text x="482" y="208" fill="#A6ADB8" font-size="11.5" font-weight="650" text-anchor="middle">SKIPPED</text>
+        <text x="600" y="199" fill="#0F766E" font-size="15.5" font-weight="700">1 red report · 1 cause</text>
+      </g>
+    </svg>
+  </div>
+  <template class="note"><p class="say">"Login breaks. Without dependencies, cart fails, checkout fails — three red reports, and you spend twenty minutes discovering there was one cause. With dependsOnMethods, TestNG knows the graph: the other two are marked SKIPPED. One red report. One cause."</p><p>Closing line: "A skip isn't a test being ignored — a skip is information." ~60s.</p></template>
+</section>
+
+<!-- 12 · PRO speed -->
+<section class="slide s2">
+  <div class="tag"><span class="rn">II</span> Pros · speed</div>
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <h3>40 minutes <span style="color:#C9CDD4">→</span> <span class="a">10</span></h3>
+  <div class="fig sm">
+    <svg viewBox="0 0 880 210" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+      <text x="14" y="24" fill="#98A0AD" font-size="12" letter-spacing="1.8">SEQUENTIAL</text>
+      <rect x="14" y="36" width="182" height="30" rx="8" fill="#E2E5EA"/><text x="105" y="56" fill="#6B7280" font-size="12" text-anchor="middle">suite A</text>
+      <rect x="200" y="36" width="182" height="30" rx="8" fill="#E2E5EA"/><text x="291" y="56" fill="#6B7280" font-size="12" text-anchor="middle">suite B</text>
+      <rect x="386" y="36" width="182" height="30" rx="8" fill="#E2E5EA"/><text x="477" y="56" fill="#6B7280" font-size="12" text-anchor="middle">suite C</text>
+      <rect x="572" y="36" width="182" height="30" rx="8" fill="#E2E5EA"/><text x="663" y="56" fill="#6B7280" font-size="12" text-anchor="middle">suite D</text>
+      <text x="772" y="57" fill="#8A93A0" font-size="17" font-weight="750">40′</text>
+      <text x="14" y="112" fill="#0F766E" font-size="12" letter-spacing="1.8" font-weight="650">PARALLEL · thread-count="4"</text>
+      <rect x="14" y="124" width="182" height="17" rx="5" fill="#0F766E"/>
+      <rect x="14" y="146" width="182" height="17" rx="5" fill="#0F766E" opacity=".86"/>
+      <rect x="14" y="168" width="182" height="17" rx="5" fill="#0F766E" opacity=".72"/>
+      <rect x="14" y="190" width="182" height="17" rx="5" fill="#0F766E" opacity=".58"/>
+      <line x1="196" y1="118" x2="196" y2="210" stroke="#0F766E" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="216" y="170" fill="#0F766E" font-size="26" font-weight="800">10′</text>
+    </svg>
+  </div>
+  <p class="cap">Granularity: <code>methods</code> · <code>classes</code> · <code>tests</code> · <code>instances</code></p>
+  <template class="note"><p class="say">"Parallel execution, in the core — no plugin. Four suites take forty minutes in sequence, ten across four threads. And you pick the granularity: by method, class, test, or instance."</p><p>Be honest: only valid when tests share no state — with Selenium that means a ThreadLocal WebDriver. Saying this shows you actually use it. ~55s.</p></template>
+</section>
+
+<!-- 13 · CONS -->
+<section class="slide s2">
+  <div class="tag"><span class="rn">II</span> Cons</div>
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <h3>What it costs</h3>
+  <div class="grid g2">
+    <div class="card"><div class="ic">🧩</div><div class="t">Complexity</div><div class="d">Groups, dependencies, factories, listeners, XML. Powerful combined — and a real learning curve. Misused dependencies hide the real failure behind a chain of skips.</div></div>
+    <div class="card"><div class="ic">🪨</div><div class="t">Overkill for unit tests</div><div class="d">One monolithic dependency vs JUnit 5's modular Platform / Jupiter / Vintage. If you only write fast isolated unit tests, the orchestration engine is dead weight — and Spring Boot defaults to JUnit 5.</div></div>
+  </div>
+  <template class="note"><p class="say">"Now the honest part. That power has a price. More mechanisms means more to learn — and dependencies used badly bury the real failure under a chain of skips. And if all you write is isolated unit tests, this whole orchestration engine is dead weight: JUnit 5 is lighter, modular, and the Spring Boot default."</p><p>In front of experts this slide buys credibility for everything before it. Don't rush. ~60s.</p></template>
+</section>
+
+<!-- 14 · HIGHLIGHT -->
+<section class="slide s2">
+  <div class="tag"><span class="rn">II</span> Highlight</div>
+  <div class="rail"><i></i><i class="on"></i><i></i></div>
+  <h3>The real win: <span class="a">getting copied</span></h3>
+  <div class="fig">
+    <svg viewBox="0 0 1000 196" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+      <line x1="60" y1="118" x2="950" y2="118" stroke="#DFE3EA" stroke-width="2"/>
+      <g>
+        <circle cx="96" cy="118" r="10" fill="#0F766E"/>
+        <text x="96" y="152" fill="#0F766E" font-size="19" font-weight="800" text-anchor="middle">2004</text>
+        <text x="96" y="172" fill="#98A0AD" font-size="12" text-anchor="middle">TestNG</text>
+        <text x="96" y="74" fill="#15181D" font-size="13" font-weight="650" text-anchor="middle">annotations · groups</text>
+        <text x="96" y="94" fill="#15181D" font-size="13" font-weight="650" text-anchor="middle">dependencies · parallel</text>
+      </g>
+      <g>
+        <circle cx="386" cy="118" r="7" fill="#B6BDC8"/>
+        <text x="386" y="152" fill="#4B5563" font-size="17" font-weight="700" text-anchor="middle">2006</text>
+        <text x="386" y="172" fill="#98A0AD" font-size="12" text-anchor="middle">JUnit 4</text>
+        <text x="386" y="90" fill="#6B7280" font-size="13" text-anchor="middle">@Test, @Before</text>
+      </g>
+      <g>
+        <circle cx="676" cy="118" r="7" fill="#B6BDC8"/>
+        <text x="676" y="152" fill="#4B5563" font-size="17" font-weight="700" text-anchor="middle">2017</text>
+        <text x="676" y="172" fill="#98A0AD" font-size="12" text-anchor="middle">JUnit 5</text>
+        <text x="676" y="90" fill="#6B7280" font-size="13" text-anchor="middle">@ParameterizedTest · @Tag</text>
+      </g>
+      <g>
+        <circle cx="918" cy="118" r="7" fill="#B6BDC8"/>
+        <text x="918" y="152" fill="#4B5563" font-size="17" font-weight="700" text-anchor="middle">2018</text>
+        <text x="918" y="172" fill="#98A0AD" font-size="12" text-anchor="middle">JUnit 5.3</text>
+        <text x="918" y="90" fill="#6B7280" font-size="13" text-anchor="middle">parallel execution</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">14 years for the ecosystem to catch up with the 1.0 feature list</p>
+  <template class="note"><p class="say">"This is the slide to remember. You don't measure a framework by market share — you measure it by what competitors had to copy. 2004: TestNG ships annotations, groups, dependencies, parallel. 2006: JUnit 4 adds annotations. 2017: JUnit 5 adds parameterized tests and tags — which are groups. 2018: parallel execution. Fourteen years to catch up with the 1.0 feature list."</p><p>Peak of the talk. Slow down; pause after "fourteen years". ~65s. Hand over.</p></template>
+</section>
+
+<!-- ══════════════ SECTION III ══════════════ -->
+<section class="slide s3 divider">
+  <div class="rail"><i></i><i></i><i class="on"></i></div>
+  <div class="num">III</div>
+  <h2>Features · Users · Reference</h2>
+  <div class="rule"></div>
+  <template class="note"><p class="say">"Part three: what's actually in the box, who uses it, and where to go next."</p><p>Speaker 3 owns everything violet. 10 seconds.</p></template>
+</section>
+
+<!-- 16 · FEATURES -->
+<section class="slide s3">
+  <div class="tag"><span class="rn">III</span> Features</div>
+  <div class="rail"><i></i><i></i><i class="on"></i></div>
+  <h3>Annotation-driven lifecycle</h3>
+  <div class="chips">
+    <span class="chip on">@BeforeSuite</span><span class="chip">@BeforeTest</span><span class="chip">@BeforeClass</span>
+    <span class="chip">@BeforeMethod</span><span class="chip on">@Test</span><span class="chip">@AfterMethod</span>
+    <span class="chip">@AfterClass</span><span class="chip">@AfterTest</span><span class="chip on">@AfterSuite</span>
+  </div>
+  <div class="grid g4" style="margin-top:4.5vh">
+    <div class="card"><div class="t">Groups</div><div class="d">smoke · regression</div></div>
+    <div class="card"><div class="t">@DataProvider</div><div class="d">one test, many datasets</div></div>
+    <div class="card"><div class="t">@Factory</div><div class="d">many instances, one class</div></div>
+    <div class="card"><div class="t">Listeners</div><div class="d">screenshot · log · retry</div></div>
+  </div>
+  <template class="note"><p class="say">"The lifecycle is annotation-driven, at four levels — suite, test, class, method — so setup and teardown are declarative, not copy-pasted. On top of that: groups, DataProvider for one test across many datasets, Factory for many instances of one class, and listeners that hook every event to screenshot, log, or retry."</p><p>~60s. Say "@Factory parameterizes the class; @DataProvider parameterizes the method" — that distinction is the expert-level detail.</p></template>
+</section>
+
+<!-- 17 · testng.xml -->
+<section class="slide s3">
+  <div class="tag"><span class="rn">III</span> Features · configuration</div>
+  <div class="rail"><i></i><i></i><i class="on"></i></div>
+  <h3>Change the run, <span class="a">not the code</span></h3>
+  <div class="fig sm">
+    <svg viewBox="0 0 860 236" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+      <rect x="10" y="14" width="450" height="208" rx="16" fill="#fff" stroke="#DCD3F0" stroke-width="1.8"/>
+      <text x="30" y="44" fill="#6D28D9" font-size="14" font-weight="700" font-family="JetBrains Mono,Consolas,monospace">&lt;suite parallel="methods" thread-count="4"&gt;</text>
+      <rect x="38" y="58" width="394" height="150" rx="12" fill="#FAFAFE" stroke="#E7E4F2"/>
+      <text x="58" y="84" fill="#4B5563" font-size="13" font-family="JetBrains Mono,Consolas,monospace">&lt;test name="Smoke"&gt;</text>
+      <rect x="66" y="96" width="348" height="44" rx="10" fill="#fff" stroke="#E7E4F2"/>
+      <text x="86" y="123" fill="#6B7280" font-size="12.5" font-family="JetBrains Mono,Consolas,monospace">&lt;groups&gt;  include: smoke, critical</text>
+      <rect x="66" y="150" width="348" height="44" rx="10" fill="#fff" stroke="#E7E4F2"/>
+      <text x="86" y="177" fill="#6B7280" font-size="12.5" font-family="JetBrains Mono,Consolas,monospace">&lt;classes&gt; LoginTest, CartTest</text>
+      <text x="508" y="62" fill="#15181D" font-size="16" font-weight="700">Suite → Test → Class</text>
+      <text x="508" y="104" fill="#15803D" font-size="14.5" font-weight="650">Every commit → smoke only</text>
+      <text x="508" y="132" fill="#15803D" font-size="14.5" font-weight="650">Nightly → full regression</text>
+      <text x="508" y="176" fill="#98A0AD" font-size="13.5">Same codebase.</text>
+      <text x="508" y="198" fill="#98A0AD" font-size="13.5">Different XML file.</text>
+    </svg>
+  </div>
+  <template class="note"><p class="say">"testng.xml pulls the run strategy out of the Java code. Your per-commit pipeline runs only the smoke group; the nightly pipeline runs full regression. Same codebase, different XML file — no test logic touched, no rebuild."</p><p>Bridge to CI: runs from Maven, Gradle and the command line, so it drops straight into Jenkins or GitHub Actions. ~50s.</p></template>
+</section>
+
+<!-- 18 · WHO -->
+<section class="slide s3">
+  <div class="tag"><span class="rn">III</span> Who uses it</div>
+  <div class="rail"><i></i><i></i><i class="on"></i></div>
+  <h3>Wherever a suite gets <span class="a">big</span></h3>
+  <div class="grid g3" style="margin-top:4vh">
+    <div class="card"><div class="t">Automation / QA engineers</div><div class="d">Selenium &amp; API suites — the dominant home of TestNG</div></div>
+    <div class="card"><div class="t">Developers</div><div class="d">Integration &amp; service-level tests</div></div>
+    <div class="card"><div class="t">DevOps</div><div class="d">Gating pipelines by group</div></div>
+  </div>
+  <div class="wall">
+    <img src="https://cdn.simpleicons.org/selenium/43B02A" alt="Selenium" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/appium/662D91" alt="Appium" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/postman/FF6C37" alt="Postman" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/apachemaven/C71A36" alt="Maven" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/gradle/02303A" alt="Gradle" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/jenkins/D24939" alt="Jenkins" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/githubactions/2088FF" alt="GitHub Actions" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/gitlab/FC6D26" alt="GitLab CI" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/intellijidea/000000" alt="IntelliJ IDEA" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/eclipseide/2C2255" alt="Eclipse" referrerpolicy="no-referrer">
+    <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" referrerpolicy="no-referrer">
+  </div>
+  <template class="note"><p class="say">"Who reaches for TestNG? Automation and QA engineers first — it is the default in the Selenium world. Developers, for integration and service-level tests. DevOps, to gate pipelines by group. It plugs into Maven, Gradle, Jenkins, GitHub Actions, GitLab, both major IDEs."</p><p>Deliberately no customer-logo claims: we have no verifiable source, and an expert audience will ask for one. ~50s.</p></template>
+</section>
+
+<!-- 19 · REFERENCE -->
+<section class="slide s3">
+  <div class="tag"><span class="rn">III</span> Reference</div>
+  <div class="rail"><i></i><i></i><i class="on"></i></div>
+  <h3>Still shipping <span class="a">today</span></h3>
+  <div class="badges">
+    <img src="https://img.shields.io/maven-central/v/org.testng/testng?style=for-the-badge&label=maven%20central&color=6D28D9" alt="latest version" referrerpolicy="no-referrer">
+    <img src="https://img.shields.io/github/last-commit/testng-team/testng?style=for-the-badge&color=6D28D9" alt="last commit" referrerpolicy="no-referrer">
+    <img src="https://img.shields.io/github/stars/testng-team/testng?style=for-the-badge&color=6D28D9" alt="stars" referrerpolicy="no-referrer">
+    <img src="https://img.shields.io/github/contributors/testng-team/testng?style=for-the-badge&color=6D28D9" alt="contributors" referrerpolicy="no-referrer">
+    <img src="https://img.shields.io/github/license/testng-team/testng?style=for-the-badge&color=6D28D9" alt="license" referrerpolicy="no-referrer">
+    <img src="https://img.shields.io/badge/Java-11%2B-6D28D9?style=for-the-badge&logo=openjdk&logoColor=white" alt="java" referrerpolicy="no-referrer">
+  </div>
+  <p class="lead wide" style="max-width:none;margin-top:5vh">
+    <b>testng.org</b> &nbsp;·&nbsp; <b>github.com/testng-team/testng</b>
+  </p>
+  <template class="note"><p class="say">"And it is not a museum piece — these numbers are live, pulled as this slide renders: current release on Maven Central, last commit, contributors, Apache 2.0, Java 11 and up."</p><p>These badges fetch live data every time you open the deck, so never quote a memorised number — read what is on the screen. Docs at testng.org, source on GitHub. ~40s.</p></template>
+</section>
+
+<!-- 20 · CLOSE -->
+<section class="slide s3">
+  <div class="rail"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  <img class="logo-hero" src="https://github.com/testng-team.png" alt="TestNG" referrerpolicy="no-referrer">
+  <h2 style="margin-top:4.5vh">Not a test runner.<br>A test <span class="a">orchestrator</span>.</h2>
+  <p class="lead">Thank you.</p>
+  <template class="note"><p class="say">"Twenty-two years ago someone looked at JUnit 3 and decided not to patch it, but to rewrite it. What came out wasn't a test runner — it was a test orchestrator. That's why the name 'Next Generation' still holds. Thank you."</p><p>Two-second pause before "Thank you". No Q&amp;A slide. ~25s.</p></template>
+</section>
+
+<div class="bar" id="bar"></div>
+<div class="clock" id="clock">00:00 / 15:00</div>
+<div class="hud"><b id="cur">1</b> / <span id="tot">20</span></div>
+<aside class="notes" id="notes"><h5>Speaker notes</h5><div id="nb"></div></aside>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide')),i=0;
+  var bar=document.getElementById('bar'),cur=document.getElementById('cur');
+  var notes=document.getElementById('notes'),nb=document.getElementById('nb');
+  document.getElementById('tot').textContent=slides.length;
+
+  function render(){
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i)});
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    var acc=getComputedStyle(slides[i]).getPropertyValue('--a');
+    bar.style.background=acc;
+    cur.textContent=i+1;
+    var t=slides[i].querySelector('template.note');
+    nb.innerHTML=t?t.innerHTML:'';
+  }
+  function go(n){ if(n<0||n>=slides.length)return; i=n; render(); if(!run&&i>0)clock(); }
+
+  var el=document.getElementById('clock'),run=false,sec=0,tk=null;
+  function f(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x}
+  function paint(){el.textContent=f(sec)+' / 15:00';el.className='clock'+(sec>900?' over':(run?' run':''))}
+  function clock(){run=!run; if(run){tk=setInterval(function(){sec++;paint()},1000)}else{clearInterval(tk)} paint()}
+
+  document.addEventListener('keydown',function(e){
+    var k=e.key;
+    if(k==='ArrowRight'||k==='ArrowDown'||k===' '||k==='PageDown'){e.preventDefault();go(i+1)}
+    else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'){e.preventDefault();go(i-1)}
+    else if(k==='Home'){go(0)} else if(k==='End'){go(slides.length-1)}
+    else if(k==='n'||k==='N'){notes.classList.toggle('on')}
+    else if(k==='t'||k==='T'){clock()}
+    else if(k==='r'||k==='R'){sec=0;paint()}
+    else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+  });
+  document.addEventListener('click',function(e){
+    if(notes.contains(e.target))return;
+    go(e.clientX<innerWidth*0.26?i-1:i+1);
+  });
+  render();paint();
+})();
+</script>
+</body>
+</html>
